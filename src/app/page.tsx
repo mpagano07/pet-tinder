@@ -1,101 +1,99 @@
-import Image from "next/image";
+"use client";
+
+import { Heart, Shield, MapPin, Sparkles, MessageCircle, PawPrint } from "lucide-react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { useTranslation } from "@/i18n/LanguageProvider";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const dict = useTranslation()
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-background">
+      {/* Background Gradients */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-orange-500/20 blur-[120px] pointer-events-none" />
+
+      {/* Navbar */}
+      <nav className="w-full absolute top-0 z-50 p-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
+        <div className="flex items-center gap-2 font-bold text-2xl tracking-tight">
+          <PawPrint className="text-primary w-8 h-8" />
+          <span className="text-gradient">PetMatch</span>
         </div>
+        <div className="flex gap-4">
+          <Link href="/auth/login" className="px-6 py-2 rounded-full font-medium transition-colors hover:bg-white/5">
+            {dict.common.login}
+          </Link>
+          <Link href="/auth/signup" className="px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 shadow-[0_0_20px_rgba(230,57,70,0.4)] transition-all">
+            {dict.common.signup}
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-3xl flex flex-col items-center"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 border border-white/10 text-sm font-medium text-white/80">
+            <Sparkles className="w-4 h-4 text-orange-400" />
+            <span>{dict.landing.subtitle}</span>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-tight">
+            {dict.landing.titlePart1} <span className="text-gradient">{dict.landing.titleGradient}</span><br />
+            {dict.landing.titlePart2}
+          </h1>
+
+          <p className="text-lg md:text-xl text-white/60 mb-10 max-w-2xl leading-relaxed">
+            {dict.landing.description}
+          </p>
+
+          <Link href="/auth/signup" className="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(230,57,70,0.5)] transition-all flex items-center gap-2">
+            {dict.landing.cta} <Heart className="w-5 h-5 fill-current" />
+          </Link>
+        </motion.div>
+
+        {/* Feature Highlights */}
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 max-w-5xl w-full"
+        >
+          {[
+            {
+              icon: MapPin,
+              title: dict.landing.features.local.title,
+              description: dict.landing.features.local.desc,
+              color: "text-blue-400"
+            },
+            {
+              icon: MessageCircle,
+              title: dict.landing.features.chat.title,
+              description: dict.landing.features.chat.desc,
+              color: "text-green-400"
+            },
+            {
+              icon: Shield,
+              title: dict.landing.features.safe.title,
+              description: dict.landing.features.safe.desc,
+              color: "text-purple-400"
+            }
+          ].map((feature, i) => (
+            <div key={i} className="glass p-6 rounded-3xl flex flex-col items-center text-center hover:bg-white/10 transition-colors cursor-default">
+              <div className={`p-4 rounded-2xl bg-white/5 mb-4 ${feature.color}`}>
+                <feature.icon className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+              <p className="text-white/50 leading-relaxed">{feature.description}</p>
+            </div>
+          ))}
+        </motion.div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
