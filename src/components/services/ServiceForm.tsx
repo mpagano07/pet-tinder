@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createService, updateService } from '@/app/services/actions'
-import { Camera, Loader2, X, MapPin, Phone, Type, Info, ExternalLink } from 'lucide-react'
+import { Camera, Loader2, X, MapPin, Phone, Type, Info, ExternalLink, Star } from 'lucide-react'
 import { useTranslation } from '@/i18n/LanguageProvider'
 
 interface ServiceFormProps {
@@ -21,7 +21,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     setPhotos(prev => [...prev, ...files])
-    
+
     const newPreviews = files.map(file => URL.createObjectURL(file))
     setPreviews(prev => [...prev, ...newPreviews])
   }
@@ -50,7 +50,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
       formData.append('id', service.id)
       formData.append('existing_photos', JSON.stringify(existingPhotos))
     }
-    
+
     photos.forEach(photo => formData.append('photos', photo))
 
     const result = service ? await updateService(formData) : await createService(formData)
@@ -203,10 +203,10 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
               <p className="text-[11px] text-white/50">Tu servicio será promocionado sin costo por 30 días. Luego tendrá un costo mensual de suscripción.</p>
             </div>
           </div>
-          
+
           <label className="flex items-center gap-3 cursor-pointer group p-1">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               required
               className="w-5 h-5 rounded-md border-white/10 bg-white/5 checked:bg-primary transition-all cursor-pointer"
             />

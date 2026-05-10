@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Send } from 'lucide-react'
+import { PawPrint, Send } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Message {
@@ -23,11 +23,11 @@ interface ChatClientProps {
   otherPetPhoto?: string
 }
 
-export function ChatClient({ 
-  matchId, 
-  userId, 
-  initialMessages, 
-  placeholder, 
+export function ChatClient({
+  matchId,
+  userId,
+  initialMessages,
+  placeholder,
   sendText,
   myPetPhoto,
   otherPetPhoto
@@ -100,7 +100,7 @@ export function ChatClient({
     }
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
-    
+
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false)
       supabase.channel(`match:${matchId}`).track({ isTyping: false })
@@ -154,23 +154,23 @@ export function ChatClient({
                   </div>
                 )}
               </div>
-              <div 
+              <div
                 className={cn(
                   "max-w-[75%] px-4 py-2.5 rounded-2xl shadow-sm",
-                  isMe 
-                    ? "bg-primary text-primary-foreground rounded-tr-sm" 
+                  isMe
+                    ? "bg-primary text-primary-foreground rounded-tr-sm"
                     : "glass rounded-tl-sm border border-white/5"
                 )}
               >
                 <p className="text-[15px] leading-relaxed">{msg.content}</p>
                 <span className="text-[10px] opacity-50 mt-1 block text-right">
-                  {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             </div>
           )
         })}
-        
+
         {otherIsTyping && (
           <div className="flex justify-start gap-3">
             <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex-shrink-0 border border-white/5">
@@ -183,7 +183,7 @@ export function ChatClient({
             </div>
           </div>
         )}
-        
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -199,7 +199,7 @@ export function ChatClient({
             placeholder={placeholder}
             className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-3.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white placeholder:text-white/30"
           />
-          <button 
+          <button
             type="submit"
             disabled={!newMessage.trim()}
             className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale shadow-lg shadow-primary/20"
