@@ -60,14 +60,22 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     query = query.not('id', 'in', swipedIds)
   }
 
-  if (searchParams.species && searchParams.species !== '') {
-    query = query.ilike('species', searchParams.species)
+  // Filter by species (exact match for performance and enum compatibility)
+  const species = Array.isArray(searchParams.species) ? searchParams.species[0] : searchParams.species
+  if (species && species !== '') {
+    query = query.eq('species', species)
   }
-  if (searchParams.gender && searchParams.gender !== '') {
-    query = query.ilike('gender', searchParams.gender)
+
+  // Filter by gender (exact match for enum compatibility)
+  const gender = Array.isArray(searchParams.gender) ? searchParams.gender[0] : searchParams.gender
+  if (gender && gender !== '') {
+    query = query.eq('gender', gender)
   }
-  if (searchParams.maxAge) {
-    query = query.lte('age', parseInt(searchParams.maxAge))
+
+  // Filter by age
+  const maxAge = Array.isArray(searchParams.maxAge) ? searchParams.maxAge[0] : searchParams.maxAge
+  if (maxAge && !isNaN(parseInt(maxAge))) {
+    query = query.lte('age', parseInt(maxAge))
   }
 
   const { data: potentialMatches, error: queryError } = await query.limit(50)

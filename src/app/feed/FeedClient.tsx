@@ -76,7 +76,7 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              if (pets[pets.length - 1]) removeCard(pets[pets.length - 1].id, 'dislike');
+              if (pets[0]) removeCard(pets[0].id, 'dislike');
             }}
             className="w-20 h-20 rounded-full bg-zinc-900/80 backdrop-blur-xl flex items-center justify-center border border-white/10 text-white/60 hover:text-red-500 hover:border-red-500/50 transition-all hover:scale-110 active:scale-90 shadow-2xl pointer-events-auto"
           >
@@ -87,7 +87,7 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              if (pets[pets.length - 1]) removeCard(pets[pets.length - 1].id, 'like');
+              if (pets[0]) removeCard(pets[0].id, 'like');
             }}
             className="w-20 h-20 rounded-full bg-zinc-900/80 backdrop-blur-xl flex items-center justify-center border border-white/10 text-primary hover:border-primary/50 transition-all hover:scale-110 active:scale-90 shadow-[0_0_40px_rgba(230,57,70,0.3)] pointer-events-auto"
           >

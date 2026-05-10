@@ -1,8 +1,12 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { Navigation } from '@/components/Navigation'
-import { Globe, Users, Calendar, MapPin, Sparkles, Plus, ArrowRight } from 'lucide-react'
+import { Globe, Users, Calendar, MapPin, Sparkles, ArrowRight } from 'lucide-react'
 import { getDictionary } from '@/i18n/getDictionary'
+import { EventList } from '@/components/community/EventList'
+import { CreateEventModal } from '@/components/community/CreateEventModal'
+import { PostList } from '@/components/community/PostList'
+import { CreatePostModal } from '@/components/community/CreatePostModal'
 
 export default async function CommunityPage() {
   const supabase = createClient()
@@ -13,9 +17,48 @@ export default async function CommunityPage() {
     redirect('/auth/login')
   }
 
-  // Real Stats from DB
+  // Fetch user profile to check role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  const isAdmin = profile?.role === 'admin'
+
+  // 1. Fetch Stats
   const { count: totalDogs } = await supabase.from('pets').select('*', { count: 'exact', head: true }).eq('species', 'dog')
   const { count: totalGoldens } = await supabase.from('pets').select('*', { count: 'exact', head: true }).ilike('breed', '%golden%')
+
+  // 2. Fetch Events with participant counts and user join status
+  const { data: eventsData } = await supabase
+    .from('events')
+    .select(`
+      *,
+      event_participants (profile_id)
+    `)
+    .order('event_date', { ascending: true })
+    .limit(10)
+
+  const formattedEvents = (eventsData || []).map(event => ({
+    ...event,
+    participants_count: event.event_participants?.length || 0,
+    is_joined: event.event_participants?.some((p: any) => p.profile_id === user.id) || false
+  }))
+
+  // 3. Fetch Social Board Posts
+  const { data: postsData } = await supabase
+    .from('community_posts')
+    .select(`
+      *,
+      author:author_id (
+        username,
+        full_name,
+        avatar_url
+      )
+    `)
+    .order('created_at', { ascending: false })
+    .limit(20)
 
   return (
     <div className="min-h-screen bg-background pb-24 relative overflow-hidden">
@@ -75,63 +118,10 @@ export default async function CommunityPage() {
              <h3 className="text-xl font-bold flex items-center gap-2">
                <Calendar className="w-5 h-5 text-primary" /> Próximos Eventos
              </h3>
-             <button className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1 hover:gap-2 transition-all">
-               Ver todos <ArrowRight className="w-3 h-3" />
-             </button>
+             {isAdmin && <CreateEventModal />}
           </div>
 
-          <div className="space-y-4">
-            {/* Event Card 1 */}
-            <div className="glass rounded-3xl p-5 border border-white/5 hover:border-white/10 transition-all cursor-pointer group">
-               <div className="flex gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-zinc-800 overflow-hidden relative border border-white/5 shrink-0">
-                     <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Event" />
-                     <div className="absolute top-1 right-1 px-1.5 py-0.5 bg-primary rounded-lg text-[8px] font-black text-white italic">HOT</div>
-                  </div>
-                  <div className="flex-1">
-                     <p className="text-[10px] font-black text-primary uppercase tracking-tighter mb-1">Este Sábado • 16:00hs</p>
-                     <h4 className="font-bold text-lg leading-tight mb-2">Gran Juntada de Cachorros</h4>
-                     <div className="flex items-center gap-1 text-white/40 text-[10px] font-bold uppercase">
-                        <MapPin className="w-3 h-3" /> Parque de las Naciones
-                     </div>
-                  </div>
-               </div>
-               <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
-                  <div className="flex -space-x-2">
-                     {[1,2,3].map(i => (
-                       <div key={i} className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 flex items-center justify-center text-[8px] font-bold">P{i}</div>
-                     ))}
-                     <div className="w-6 h-6 rounded-full bg-primary/20 border-2 border-zinc-900 flex items-center justify-center text-[8px] font-bold text-primary">+12</div>
-                  </div>
-                  <button className="px-4 py-2 bg-white/5 hover:bg-primary hover:text-white transition-all rounded-xl text-xs font-bold uppercase tracking-wider border border-white/5">Unirse</button>
-               </div>
-            </div>
-
-            {/* Event Card 2 */}
-            <div className="glass rounded-3xl p-5 border border-white/5 hover:border-white/10 transition-all cursor-pointer group">
-               <div className="flex gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-zinc-800 overflow-hidden relative border border-white/5 shrink-0">
-                     <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&q=80&w=200" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Event" />
-                  </div>
-                  <div className="flex-1">
-                     <p className="text-[10px] font-black text-blue-400 uppercase tracking-tighter mb-1">Domingo • 10:00hs</p>
-                     <h4 className="font-bold text-lg leading-tight mb-2">Caminata Grupal Senior</h4>
-                     <div className="flex items-center gap-1 text-white/40 text-[10px] font-bold uppercase">
-                        <MapPin className="w-3 h-3" /> Costanera Sur
-                     </div>
-                  </div>
-               </div>
-               <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
-                  <div className="flex -space-x-2">
-                     {[1,2].map(i => (
-                       <div key={i} className="w-6 h-6 rounded-full bg-zinc-700 border-2 border-zinc-900 flex items-center justify-center text-[8px] font-bold">P{i}</div>
-                     ))}
-                     <div className="w-6 h-6 rounded-full bg-blue-500/20 border-2 border-zinc-900 flex items-center justify-center text-[8px] font-bold text-blue-400">+5</div>
-                  </div>
-                  <button className="px-4 py-2 bg-white/5 hover:bg-primary hover:text-white transition-all rounded-xl text-xs font-bold uppercase tracking-wider border border-white/5">Unirse</button>
-               </div>
-            </div>
-          </div>
+          <EventList initialEvents={formattedEvents} />
         </section>
 
         {/* Community Board */}
@@ -140,44 +130,10 @@ export default async function CommunityPage() {
              <h3 className="text-xl font-bold flex items-center gap-2">
                <Sparkles className="w-5 h-5 text-yellow-400" /> Tablero Social
              </h3>
-             <button className="p-2 bg-primary rounded-full shadow-[0_0_15px_rgba(230,57,70,0.4)]">
-               <Plus className="w-4 h-4 text-white" />
-             </button>
+             <CreatePostModal />
           </div>
 
-          <div className="space-y-3">
-             <div className="glass-dark p-4 rounded-2xl border border-white/5">
-                <div className="flex items-center gap-3 mb-2">
-                   <div className="w-8 h-8 rounded-full bg-zinc-800" />
-                   <div>
-                      <p className="text-xs font-bold">@matias_rex</p>
-                      <p className="text-[10px] text-white/40">Hace 2 horas</p>
-                   </div>
-                </div>
-                <p className="text-sm text-white/80 leading-relaxed">
-                  "Busco compañero de socialización para cachorro de 4 meses en zona Palermo. Es un labrador muy tranquilo!"
-                </p>
-                <div className="mt-3 flex gap-2">
-                   <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-lg border border-blue-500/10">SOCIALIZACIÓN</span>
-                </div>
-             </div>
-
-             <div className="glass-dark p-4 rounded-2xl border border-white/5">
-                <div className="flex items-center gap-3 mb-2">
-                   <div className="w-8 h-8 rounded-full bg-zinc-800" />
-                   <div>
-                      <p className="text-xs font-bold">@laura_pups</p>
-                      <p className="text-[10px] text-white/40">Hace 5 horas</p>
-                   </div>
-                </div>
-                <p className="text-sm text-white/80 leading-relaxed">
-                  "¿Alguien conoce un buen adiestrador que use refuerzo positivo por la zona de Belgrano?"
-                </p>
-                <div className="mt-3 flex gap-2">
-                   <span className="px-2 py-0.5 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-lg border border-green-400/10">PREGUNTA</span>
-                </div>
-             </div>
-          </div>
+          <PostList initialPosts={postsData || []} />
         </section>
 
       </main>

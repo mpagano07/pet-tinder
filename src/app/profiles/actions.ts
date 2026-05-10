@@ -46,21 +46,48 @@ export async function addPet(formData: FormData) {
   const temperament = temperamentRaw ? temperamentRaw.split(',').map(t => t.trim()).filter(Boolean) : []
   const geneticInfo = formData.get('genetic_info') as string
   const behaviorPrediction = formData.get('behavior_prediction') as string
-  const photo = formData.get('photo') as File
-
+  const photoOrder = JSON.parse(formData.get('photo_order') as string || '[]') as string[]
+  const uploadedFiles = formData.getAll('photo') as File[]
+  
   let photosArray: string[] = []
 
-  if (photo && photo.size > 0) {
-    const fileExt = photo.name.split('.').pop()
-    const fileName = `${user.id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+  if (photoOrder.length > 0) {
+    for (const item of photoOrder) {
+      if (item.startsWith('file:')) {
+        const fileNameRaw = item.replace('file:', '')
+        const photo = uploadedFiles.find(f => f.name === fileNameRaw)
+        
+        if (photo && photo.size > 0) {
+          const fileExt = photo.name.split('.').pop()
+          const fileName = `${user.id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
 
-    const { error: uploadError, data } = await supabase.storage
-      .from('pets')
-      .upload(fileName, photo, { cacheControl: '3600', upsert: false })
+          const { error: uploadError, data } = await supabase.storage
+            .from('pets')
+            .upload(fileName, photo, { cacheControl: '3600', upsert: false })
 
-    if (!uploadError && data) {
-      const { data: publicUrlData } = supabase.storage.from('pets').getPublicUrl(fileName)
-      photosArray.push(publicUrlData.publicUrl)
+          if (!uploadError && data) {
+            const { data: publicUrlData } = supabase.storage.from('pets').getPublicUrl(fileName)
+            photosArray.push(publicUrlData.publicUrl)
+          }
+        }
+      }
+    }
+  } else {
+    // Fallback for simple uploads
+    for (const photo of uploadedFiles) {
+      if (photo && photo.size > 0) {
+        const fileExt = photo.name.split('.').pop()
+        const fileName = `${user.id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+
+        const { error: uploadError, data } = await supabase.storage
+          .from('pets')
+          .upload(fileName, photo, { cacheControl: '3600', upsert: false })
+
+        if (!uploadError && data) {
+          const { data: publicUrlData } = supabase.storage.from('pets').getPublicUrl(fileName)
+          photosArray.push(publicUrlData.publicUrl)
+        }
+      }
     }
   }
 
@@ -128,8 +155,7 @@ export async function updatePet(formData: FormData) {
   const size = formData.get('size') as string
   const pedigree = formData.get('pedigree') === 'true'
   const medicalNotes = formData.get('medical_notes') as string
-  const photo = formData.get('photo') as File
-
+  // Construct update object carefully
   const updateData: any = {
     name,
     species: species || 'other',
@@ -149,27 +175,48 @@ export async function updatePet(formData: FormData) {
     behavior_prediction: formData.get('behavior_prediction') as string,
   }
 
-  if (photo && photo.size > 0) {
-    const fileExt = photo.name.split('.').pop()
-    const fileName = `${user.id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
+  const photoOrder = JSON.parse(formData.get('photo_order') as string || '[]') as string[]
+  const uploadedFiles = formData.getAll('photo') as File[]
+  
+  const finalPhotos: string[] = []
 
-    const { error: uploadError, data } = await supabase.storage
-      .from('pets')
-      .upload(fileName, photo, { cacheControl: '3600', upsert: false })
+  for (const item of photoOrder) {
+    if (item.startsWith('url:')) {
+      finalPhotos.push(item.replace('url:', ''))
+    } else if (item.startsWith('file:')) {
+      const fileNameRaw = item.replace('file:', '')
+      const photo = uploadedFiles.find(f => f.name === fileNameRaw)
+      
+      if (photo && photo.size > 0) {
+        const fileExt = photo.name.split('.').pop()
+        const fileName = `${user.id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
 
-    if (!uploadError && data) {
-      const { data: publicUrlData } = supabase.storage.from('pets').getPublicUrl(fileName)
-      updateData.photos = [publicUrlData.publicUrl]
+        const { error: uploadError, data } = await supabase.storage
+          .from('pets')
+          .upload(fileName, photo, { cacheControl: '3600', upsert: false })
+
+        if (!uploadError && data) {
+          const { data: publicUrlData } = supabase.storage.from('pets').getPublicUrl(fileName)
+          finalPhotos.push(publicUrlData.publicUrl)
+        }
+      }
     }
   }
 
+  if (finalPhotos.length > 0) {
+    updateData.photos = finalPhotos
+  }
+
+  // Use a more robust update call
   const { error } = await supabase
     .from('pets')
     .update(updateData)
-    .eq('id', petId)
-    .eq('owner_id', user.id)
+    .match({ id: petId, owner_id: user.id })
 
-  if (error) return { error: error.message }
+  if (error) {
+    console.error('[updatePet Error]:', error)
+    return { error: error.message }
+  }
 
   revalidatePath('/profiles')
   return { success: true }

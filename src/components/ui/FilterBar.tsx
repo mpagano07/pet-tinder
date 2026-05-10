@@ -52,7 +52,7 @@ export function FilterBar() {
   const hasFilters = !!(searchParams.get('species') || searchParams.get('gender') || searchParams.get('maxAge') || searchParams.get('maxDist'))
 
   const handleApply = () => {
-    console.log('[FilterBar] Clicked Apply')
+
     const params = new URLSearchParams()
     if (tempSpecies) params.set('species', tempSpecies)
     if (tempGender) params.set('gender', tempGender)
@@ -151,7 +151,7 @@ export function FilterBar() {
             </div>
 
             {/* Distance Filter */}
-            <div className="mb-8">
+            <div className="mb-6">
               <label className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold block mb-3">
                 Distancia: <span className="text-white font-black">{tempMaxDist ? `${tempMaxDist} km` : 'Sin límite'}</span>
               </label>
@@ -162,6 +162,22 @@ export function FilterBar() {
                 step={5}
                 value={tempMaxDist || 100}
                 onChange={(e) => setTempMaxDist(e.target.value === '100' ? '' : e.target.value)}
+                className="w-full accent-primary h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
+              />
+            </div>
+
+            {/* Age Filter */}
+            <div className="mb-8">
+              <label className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-bold block mb-3">
+                Edad máxima: <span className="text-white font-black">{tempMaxAge ? `${tempMaxAge} años` : 'Cualquiera'}</span>
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={20}
+                step={1}
+                value={tempMaxAge || 20}
+                onChange={(e) => setTempMaxAge(e.target.value === '20' ? '' : e.target.value)}
                 className="w-full accent-primary h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
               />
             </div>
@@ -177,7 +193,7 @@ export function FilterBar() {
                     key={s.value}
                     type="button"
                     onClick={() => {
-                      console.log('[FilterBar] Selected species:', s.value)
+
                       setTempSpecies(s.value)
                     }}
                     className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${

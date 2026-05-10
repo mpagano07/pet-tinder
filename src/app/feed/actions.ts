@@ -8,14 +8,14 @@ export async function recordSwipe(swiperPetId: string, swipedPetId: string, acti
 
   if (!user) return { error: 'Not authenticated' }
 
-  // 1. Insert swipe
+  // 1. Insert swipe (upsert to handle accidental duplicates)
   const { error: swipeError } = await supabase
     .from('swipes')
-    .insert({
+    .upsert({
       swiper_pet_id: swiperPetId,
       swiped_pet_id: swipedPetId,
       action
-    })
+    }, { onConflict: 'swiper_pet_id,swiped_pet_id' })
 
   if (swipeError) {
     return { error: swipeError.message }

@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { PawPrint, Flag, X, Heart, MapPin, Sparkles } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { ReportModal } from '@/components/ui/ReportModal'
 import type { Pet } from '@/types'
 import { calculateCompatibility, getCompatibilityLabel } from '@/lib/matching'
@@ -25,6 +25,7 @@ const SPECIES_EMOJI: Record<string, string> = {
 export function SwipeCard({ pet, swiperPet, active, removeCard }: SwipeCardProps) {
   const [showReport, setShowReport] = useState(false)
   const [exitX, setExitX] = useState(0)
+  const [photoIndex, setPhotoIndex] = useState(0)
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-15, 15])
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0])
@@ -45,6 +46,22 @@ export function SwipeCard({ pet, swiperPet, active, removeCard }: SwipeCardProps
     }
   }
 
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleTap = (e: any, info: any) => {
+    if (!active || !cardRef.current) return
+    
+    const rect = cardRef.current.getBoundingClientRect()
+    const xPos = info.point.x - rect.left
+    const isNext = xPos > rect.width / 2
+
+    if (isNext) {
+      setPhotoIndex(prev => (prev + 1) % (pet.photos?.length || 1))
+    } else {
+      setPhotoIndex(prev => (prev - 1 + (pet.photos?.length || 1)) % (pet.photos?.length || 1))
+    }
+  }
+
   const speciesKey = pet.species?.toLowerCase() ?? 'other'
   const speciesEmoji = SPECIES_EMOJI[speciesKey] ?? '🐾'
 
@@ -55,20 +72,37 @@ export function SwipeCard({ pet, swiperPet, active, removeCard }: SwipeCardProps
   return (
     <>
       <motion.div
-        className={`absolute top-0 w-full h-[60vh] max-h-[600px] cursor-grab select-none ${!active ? 'pointer-events-none opacity-0' : 'pointer-events-auto'}`}
-        style={{ x, rotate, opacity }}
+        className={`absolute top-0 w-full h-[60vh] max-h-[600px] cursor-grab select-none ${!active ? 'pointer-events-none' : 'pointer-events-auto'}`}
+        style={{ x, rotate, opacity: active ? 1 : 0 }}
         drag={active ? 'x' : false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         onDragEnd={dragEnd}
         animate={{ x: exitX }}
         transition={{ duration: 0.3 }}
         whileTap={{ cursor: 'grabbing' }}
+        ref={cardRef}
+        onTap={handleTap}
       >
         <div className="w-full h-full rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-900">
+          {/* Photo Indicators */}
+          {pet.photos && pet.photos.length > 1 && (
+            <div className="absolute top-2 left-0 right-0 z-40 flex gap-1 px-4">
+              {pet.photos.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1 flex-1 rounded-full transition-colors duration-300 ${i === photoIndex ? 'bg-white' : 'bg-white/30'}`} 
+                />
+              ))}
+            </div>
+          )}
+
           {/* Photo */}
           {pet.photos && pet.photos.length > 0 ? (
-            <img
-              src={pet.photos[0]}
+            <motion.img
+              key={photoIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              src={pet.photos[photoIndex]}
               alt={pet.name}
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               draggable={false}
@@ -79,18 +113,24 @@ export function SwipeCard({ pet, swiperPet, active, removeCard }: SwipeCardProps
             </div>
           )}
 
-          {/* Compatibility Badge */}
-          <div className="absolute top-16 left-4 z-20">
-            <div className="glass-dark px-3 py-1.5 rounded-2xl border border-white/10 flex flex-col gap-0.5">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                <span className={`text-[10px] font-black uppercase tracking-tighter ${compColor}`}>{compLabel}</span>
+          {/* Compatibility Badge - Only visible if active to prevent stacking issues */}
+          {active && (
+            <motion.div 
+              initial={{ scale: 0.8, opacity: 0, x: -20 }}
+              animate={{ scale: 1, opacity: 1, x: 0 }}
+              className="absolute top-16 left-4 z-30"
+            >
+              <div className="glass-dark px-3 py-1.5 rounded-2xl border border-white/10 flex flex-col gap-0.5 shadow-xl">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                  <span className={`text-[10px] font-black uppercase tracking-tighter ${compColor}`}>{compLabel}</span>
+                </div>
+                <div className="text-xl font-black text-white leading-none">
+                  {compatibility}% <span className="text-[10px] font-medium opacity-50">Match</span>
+                </div>
               </div>
-              <div className="text-xl font-black text-white leading-none">
-                {compatibility}% <span className="text-[10px] font-medium opacity-50">Match</span>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          )}
 
           {/* Like overlay */}
           <motion.div

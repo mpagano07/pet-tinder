@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Plus, Image as ImageIcon, PawPrint, Loader2, Sparkles, Brain, FlaskConical } from 'lucide-react'
+import { Plus, Image as ImageIcon, PawPrint, Loader2, Sparkles, Brain, FlaskConical, X, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { addPet } from '@/app/profiles/actions'
 import { useTranslation } from '@/i18n/LanguageProvider'
@@ -14,18 +14,41 @@ const SPECIES_OPTIONS = [
   { value: 'other', label: '🐾 Otro' },
 ]
 
-export function PetForm() {
-  const [preview, setPreview] = useState<string | null>(null)
+interface PhotoItem {
+  id: string
+  src: string
+  file: File
+}
+
+export function PetForm({ onSuccess }: { onSuccess?: () => void }) {
+  const [photos, setPhotos] = useState<PhotoItem[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const dict = useTranslation()
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const url = URL.createObjectURL(file)
-      setPreview(url)
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      const newPhotos = files.map(file => ({
+        id: Math.random().toString(36).substr(2, 9),
+        src: URL.createObjectURL(file),
+        file
+      }))
+      setPhotos(prev => [...prev, ...newPhotos])
     }
+  }
+
+  const removePhoto = (id: string) => {
+    setPhotos(prev => prev.filter(p => p.id !== id))
+  }
+
+  const setAsMain = (index: number) => {
+    setPhotos(prev => {
+      const next = [...prev]
+      const [item] = next.splice(index, 1)
+      next.unshift(item)
+      return next
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,6 +57,15 @@ export function PetForm() {
 
     const formData = new FormData(e.currentTarget)
     
+    // Add photo order
+    const photoOrder = photos.map(p => `file:${p.file.name}`)
+    formData.append('photo_order', JSON.stringify(photoOrder))
+    
+    // Add files
+    photos.forEach(p => {
+      formData.append('photo', p.file)
+    })
+    
     try {
       const result = await addPet(formData)
       if (result?.error) {
@@ -41,7 +73,8 @@ export function PetForm() {
       } else {
         toast.success(dict.profile.petAdded || 'Pet added successfully!')
         formRef.current?.reset()
-        setPreview(null)
+        setPhotos([])
+        onSuccess?.()
       }
     } catch (err) {
       toast.error('Something went wrong')
@@ -62,27 +95,51 @@ export function PetForm() {
         {/* Photo Upload Field */}
         <div className="w-full">
           <label className="text-[10px] text-white/40 uppercase tracking-widest font-black mb-2 block">
-            Foto Principal
+            Fotos de la Mascota
           </label>
-          <div className="relative w-full h-48 bg-white/5 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center hover:bg-white/10 transition-all cursor-pointer group overflow-hidden">
-            <input
-              type="file"
-              name="photo"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-              required
-            />
-            {preview ? (
-              <img src={preview} alt="Preview" className="w-full h-full object-cover animate-in fade-in zoom-in duration-300" />
-            ) : (
-              <>
-                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <ImageIcon className="w-8 h-8 text-white/20 group-hover:text-primary transition-colors" />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {photos.map((photo, index) => (
+              <div key={photo.id} className="relative aspect-square rounded-2xl overflow-hidden group border border-white/10">
+                <img src={photo.src} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    type="button"
+                    onClick={() => setAsMain(index)}
+                    className={`p-1 backdrop-blur-sm rounded-full text-white transition-colors ${index === 0 ? 'bg-yellow-500' : 'bg-black/50 hover:bg-yellow-500/50'}`}
+                    title={index === 0 ? 'Foto principal' : 'Marcar como principal'}
+                  >
+                    <Star className={`w-4 h-4 ${index === 0 ? 'fill-current' : ''}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(photo.id)}
+                    className="p-1 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-red-500"
+                    title="Eliminar"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                <span className="text-sm text-white/40 group-hover:text-white/60 transition-colors font-bold uppercase tracking-tighter">Toca para subir foto</span>
-              </>
-            )}
+                {index === 0 && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-yellow-500/80 text-white text-[8px] font-black uppercase text-center py-0.5">
+                    Principal
+                  </div>
+                )}
+              </div>
+            ))}
+            <div className="relative aspect-square bg-white/5 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center hover:bg-white/10 transition-all cursor-pointer group overflow-hidden">
+              <input
+                type="file"
+                name="photo"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              />
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                <ImageIcon className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" />
+              </div>
+              <span className="text-[10px] text-white/40 group-hover:text-white/60 transition-colors font-bold uppercase tracking-tighter text-center px-2">Añadir Fotos</span>
+            </div>
           </div>
         </div>
 

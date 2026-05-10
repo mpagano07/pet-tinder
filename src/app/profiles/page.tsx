@@ -8,7 +8,7 @@ import { getDictionary } from '@/i18n/getDictionary'
 import Link from 'next/link'
 import { LocationButton } from '@/components/ui/LocationButton'
 
-import { PetForm } from '@/components/profiles/PetForm'
+import { AddPetButton } from '@/components/profiles/AddPetButton'
 
 import { DeletePetButton } from '@/components/profiles/DeletePetButton'
 import { EditPetButton } from '@/components/profiles/EditPetButton'
@@ -122,7 +122,7 @@ export default async function ProfilesPage() {
                   />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-0" />
-                
+
                 <EditPetButton pet={pet} />
                 <DeletePetButton petId={pet.id} petName={pet.name} />
 
@@ -148,8 +148,8 @@ export default async function ProfilesPage() {
           </div>
         )}
 
-        {/* Add Pet Form */}
-        <PetForm />
+        {/* Add Pet Section */}
+        <AddPetButton />
       </div>
       <Navigation />
     </div>

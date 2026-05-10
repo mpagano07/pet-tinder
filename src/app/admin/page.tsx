@@ -127,7 +127,7 @@ export default async function AdminPage() {
                   <thead>
                     <tr className="border-b border-white/10 text-white/50 uppercase text-xs tracking-wider">
                       <th className="text-left px-4 py-3">Mascota reportada</th>
-                      <th className="text-left px-4 py-3">Razón</th>
+                      <th className="text-left px-4 py-3">Razón / Descripción</th>
                       <th className="text-left px-4 py-3">Reportado por</th>
                       <th className="text-left px-4 py-3">Estado</th>
                       <th className="text-left px-4 py-3">Acciones</th>
@@ -142,7 +142,12 @@ export default async function AdminPage() {
                             <span className="text-white/40 ml-1 text-xs">({r.reported_pet.breed})</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-white/70">{REASON_LABELS[r.reason] ?? r.reason}</td>
+                        <td className="px-4 py-3">
+                          <p className="text-white/70 font-semibold">{REASON_LABELS[r.reason] ?? r.reason}</p>
+                          {r.description && (
+                            <p className="text-white/40 text-[10px] mt-1 line-clamp-2 max-w-xs">{r.description}</p>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-white/50">@{r.reporter?.username ?? '—'}</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_STYLES[r.status as ReportStatus]}`}>
@@ -153,18 +158,12 @@ export default async function AdminPage() {
                           <div className="flex items-center gap-2">
                             {r.status === 'pending' && (
                               <>
-                                <form action={async () => {
-                                  'use server'
-                                  await updateReportStatus(r.id, 'actioned')
-                                }}>
+                                <form action={updateReportStatus.bind(null, r.id, 'actioned')}>
                                   <button className="p-1.5 rounded-lg bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors" title="Accionar">
                                     <CheckCircle className="w-4 h-4" />
                                   </button>
                                 </form>
-                                <form action={async () => {
-                                  'use server'
-                                  await updateReportStatus(r.id, 'dismissed')
-                                }}>
+                                <form action={updateReportStatus.bind(null, r.id, 'dismissed')}>
                                   <button className="p-1.5 rounded-lg bg-white/5 text-white/40 hover:bg-white/10 transition-colors" title="Descartar">
                                     <XCircle className="w-4 h-4" />
                                   </button>
@@ -172,10 +171,7 @@ export default async function AdminPage() {
                               </>
                             )}
                             {r.status !== 'pending' && (
-                              <form action={async () => {
-                                'use server'
-                                await updateReportStatus(r.id, 'pending')
-                              }}>
+                              <form action={updateReportStatus.bind(null, r.id, 'pending')}>
                                 <button className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition-colors" title="Marcar pendiente">
                                   <Clock className="w-4 h-4" />
                                 </button>
