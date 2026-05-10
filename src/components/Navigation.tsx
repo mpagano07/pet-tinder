@@ -1,6 +1,6 @@
 'use client'
 
-import { User, Heart, MessageCircle, LogOut, Globe } from 'lucide-react'
+import { User, Heart, MessageCircle, LogOut, Globe, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -52,6 +52,7 @@ export function Navigation() {
     { name: 'Comunidad', href: '/community', icon: Globe },
     { name: dict.nav.matches, href: '/matches', icon: MessageCircle, badge: unreadCount },
     { name: dict.nav.profile, href: '/profiles', icon: User },
+    { name: dict.nav.services, href: '/services', icon: Store },
   ]
 
   return (
@@ -82,17 +83,6 @@ export function Navigation() {
             </Link>
           )
         })}
-        
-        <form action={logout} className="w-full h-full">
-          <button
-            type="submit"
-            className="flex flex-col items-center justify-center w-full h-full space-y-1 text-white/40 hover:text-red-400 transition-all"
-            title="Cerrar sesión"
-          >
-            <LogOut className="w-6 h-6" />
-            <span className="text-[10px] font-medium">Salir</span>
-          </button>
-        </form>
       </div>
     </nav>
   )

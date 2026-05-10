@@ -59,7 +59,20 @@ export const en = {
   nav: {
     feed: 'Feed',
     matches: 'Matches',
-    profile: 'Profile'
+    profile: 'Profile',
+    services: 'Services'
+  },
+  services: {
+    title: 'Pet Services',
+    subtitle: 'Find the best for your pet near you',
+    search: 'Searching nearby...',
+    noResults: 'No services found in this area',
+    vet: 'Veterinarian',
+    shop: 'Pet Shop',
+    grooming: 'Grooming',
+    distance: 'away',
+    promoted: 'Promoted',
+    searchNearby: 'Explore nearby services'
   },
   matches: {
     title: 'Your Matches',

@@ -61,7 +61,20 @@ export const es: Dictionary = {
   nav: {
     feed: 'Inicio',
     matches: 'Matches',
-    profile: 'Perfil'
+    profile: 'Perfil',
+    services: 'Servicios'
+  },
+  services: {
+    title: 'Servicios para Mascotas',
+    subtitle: 'Encuentra lo mejor para tu mascota cerca de ti',
+    search: 'Buscando servicios cercanos...',
+    noResults: 'No se encontraron servicios en esta zona',
+    vet: 'Veterinaria',
+    shop: 'Pet Shop',
+    grooming: 'Peluquería Canina',
+    distance: 'de distancia',
+    promoted: 'Promocionado',
+    searchNearby: 'Explorar servicios cercanos'
   },
   matches: {
     title: 'Tus Matches',
