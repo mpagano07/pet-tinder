@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SwipeCard } from '@/components/SwipeCard'
 import { recordSwipe } from './actions'
 import { X, Heart, RefreshCcw } from 'lucide-react'
@@ -16,12 +16,16 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
   const dict = useTranslation()
   const router = useRouter()
 
+  useEffect(() => {
+    setPets(initialPets)
+  }, [initialPets])
+
   const removeCard = async (swipedPetId: string, action: 'like' | 'dislike') => {
     const swipedPet = pets.find(p => p.id === swipedPetId)
-    
+
     // Optimistic UI: remove card immediately
     setPets((prev) => prev.filter((p) => p.id !== swipedPetId))
-    
+
     try {
       const result = await recordSwipe(swiperPet.id, swipedPetId, action)
       
@@ -58,8 +62,8 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
             </div>
             <h2 className="text-2xl font-bold mb-2">{dict.feed.noMorePets}</h2>
             <p className="text-white/50 mb-8">{dict.feed.noMoreDesc}</p>
-            <button 
-              onClick={() => window.location.reload()}
+            <button
+              onClick={() => router.refresh()}
               className="px-8 py-3 bg-primary/20 text-primary font-bold rounded-xl hover:bg-primary/30 transition-all"
             >
               {dict.feed.refresh}
@@ -71,7 +75,7 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
       {/* Botones Manuales */}
       {pets.length > 0 && (
         <div className="flex gap-8 justify-center w-full py-8 mt-4 relative z-[50]">
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
@@ -82,7 +86,7 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
           >
             <X className="w-10 h-10" />
           </button>
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
@@ -99,13 +103,13 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
       {/* Match Popup Overlay */}
       <AnimatePresence>
         {matchPopup && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] bg-zinc-950/95 backdrop-blur-xl flex items-center justify-center p-4"
           >
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
@@ -113,9 +117,9 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
             >
               <div className="relative mb-8 flex justify-center">
                 <div className="w-32 h-32 rounded-full border-4 border-primary p-1 animate-pulse">
-                  <img 
-                    src={matchPopup.pet.photos?.[0] || ''} 
-                    className="w-full h-full object-cover rounded-full" 
+                  <img
+                    src={matchPopup.pet.photos?.[0] || ''}
+                    className="w-full h-full object-cover rounded-full"
                     alt="Matched pet"
                   />
                 </div>
@@ -126,15 +130,15 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
               <p className="text-xl text-white/70 mb-10 px-4">
                 A <b>{matchPopup.pet.name}</b> también le gustas. ¡Es hora de empezar a hablar!
               </p>
-              
+
               <div className="flex flex-col gap-4 px-4">
-                <button 
+                <button
                   className="w-full py-4 bg-primary text-white font-black rounded-2xl text-lg shadow-[0_0_30px_rgba(230,57,70,0.5)] hover:scale-105 transition-transform active:scale-95"
                   onClick={() => router.push(`/chat/${matchPopup.matchId}`)}
                 >
                   ENVIAR MENSAJE
                 </button>
-                <button 
+                <button
                   className="w-full py-4 bg-white/5 text-white/60 font-bold rounded-2xl text-lg hover:bg-white/10 transition-all"
                   onClick={() => setMatchPopup(null)}
                 >

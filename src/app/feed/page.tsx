@@ -15,6 +15,9 @@ interface FeedPageProps {
   }
 }
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function FeedPage({ searchParams }: FeedPageProps) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -57,7 +60,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   // Filter out already swiped pets
   if (swipedIds.length > 0) {
-    query = query.not('id', 'in', swipedIds)
+    query = query.not(
+      'id',
+      'in',
+      `(${swipedIds.map(id => `"${id}"`).join(',')})`
+    )
   }
 
   // Filter by species (exact match for performance and enum compatibility)
@@ -79,7 +86,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   }
 
   const { data: potentialMatches, error: queryError } = await query.limit(50)
-  
+
   if (queryError) {
     console.error('[Feed Query Error]:', queryError)
   }
@@ -103,10 +110,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
       </header>
 
       <main className="relative z-10 px-4 mt-4 flex justify-center">
-        <FeedClient 
-          key={JSON.stringify(searchParams)} 
-          initialPets={unswipedPets} 
-          swiperPet={myPet} 
+        <FeedClient
+          key={JSON.stringify(searchParams)}
+          initialPets={unswipedPets}
+          swiperPet={myPet}
         />
       </main>
 
