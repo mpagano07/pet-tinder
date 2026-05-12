@@ -27,18 +27,20 @@ export function Navigation() {
         return
       }
 
-      const { data: matches } = await supabase
+      const { data: matchesAsPet1 } = await supabase
         .from('matches')
         .select('id')
-        .or(
-          `pet1_id.in.(${myPetIds.map((id) => `'${id}'`).join(',')}),pet2_id.in.(${myPetIds
-            .map((id) => `'${id}'`)
-            .join(',')})`
-        )
+        .in('pet1_id', myPetIds)
 
-      const matchIds = matches?.map((match) => match.id) || []
+      const { data: matchesAsPet2 } = await supabase
+        .from('matches')
+        .select('id')
+        .in('pet2_id', myPetIds)
 
-      if (matchIds.length === 0) {
+      const allMatches = [...(matchesAsPet1 || []), ...(matchesAsPet2 || [])]
+      const uniqueMatchIds = [...new Set(allMatches.map(m => m.id))]
+
+      if (uniqueMatchIds.length === 0) {
         setUnreadCount(0)
         return
       }
@@ -46,7 +48,7 @@ export function Navigation() {
       const { count } = await supabase
         .from('messages')
         .select('id', { count: 'exact', head: true })
-        .in('match_id', matchIds)
+        .in('match_id', uniqueMatchIds)
         .neq('sender_id', user.id)
         .eq('is_read', false)
 
