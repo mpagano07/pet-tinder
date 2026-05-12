@@ -37,7 +37,7 @@ export default async function ChatPage({ params }: { params: { matchId: string }
   // Fetch initial messages
   const { data: initialMessages } = await supabase
     .from('messages')
-    .select('*')
+    .select('id, match_id, sender_id, content, reply_to_id, likes, created_at')
     .eq('match_id', params.matchId)
     .order('created_at', { ascending: true })
 
@@ -46,7 +46,7 @@ export default async function ChatPage({ params }: { params: { matchId: string }
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
       
-      <header className="glass sticky top-0 z-20 border-b border-white/10 px-4 py-4 flex items-center gap-4">
+      <header className="glass fixed top-0 left-0 right-0 z-20 border-b border-white/10 px-4 py-4 flex items-center gap-4">
         <Link href="/matches" className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
@@ -65,7 +65,7 @@ export default async function ChatPage({ params }: { params: { matchId: string }
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 relative z-10 flex flex-col">
+      <main className="flex-1 overflow-y-auto p-4 pt-24 relative z-10 flex flex-col">
         <ChatClient 
           matchId={params.matchId} 
           userId={user.id} 

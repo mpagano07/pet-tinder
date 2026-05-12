@@ -1,11 +1,10 @@
 'use client'
 
-import { User, Heart, MessageCircle, LogOut, Globe, Store } from 'lucide-react'
+import { User, Heart, MessageCircle, Globe, Store } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useTranslation } from '@/i18n/LanguageProvider'
-import { logout } from '@/app/auth/actions'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
@@ -23,15 +22,35 @@ export function Navigation() {
       const { data: userPets } = await supabase.from('pets').select('id').eq('owner_id', user.id)
       const myPetIds = userPets?.map(p => p.id) || []
 
-      if (myPetIds.length > 0) {
-        const { count } = await supabase
-          .from('messages')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_read', false)
-          .neq('sender_id', user.id)
-        
-        setUnreadCount(count || 0)
+      if (myPetIds.length === 0) {
+        setUnreadCount(0)
+        return
       }
+
+      const { data: matches } = await supabase
+        .from('matches')
+        .select('id')
+        .or(
+          `pet1_id.in.(${myPetIds.map((id) => `'${id}'`).join(',')}),pet2_id.in.(${myPetIds
+            .map((id) => `'${id}'`)
+            .join(',')})`
+        )
+
+      const matchIds = matches?.map((match) => match.id) || []
+
+      if (matchIds.length === 0) {
+        setUnreadCount(0)
+        return
+      }
+
+      const { count } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .in('match_id', matchIds)
+        .neq('sender_id', user.id)
+        .eq('is_read', false)
+
+      setUnreadCount(count || 0)
     }
 
     fetchUnread()

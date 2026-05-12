@@ -1,6 +1,7 @@
--- =========================================================
--- PetMatch — Update v3: Social Network & Intelligent Matching
--- =========================================================
+-- Add reply_to_id and likes columns to messages table
+  ALTER TABLE public.messages
+  ADD COLUMN IF NOT EXISTS reply_to_id UUID REFERENCES public.messages(id) ON DELETE CASCADE,
+  ADD COLUMN IF NOT EXISTS likes UUID[] DEFAULT '{}';
 
 -- 1. Update Pets table with matching fields
 ALTER TABLE public.pets 

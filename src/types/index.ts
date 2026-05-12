@@ -50,6 +50,8 @@ export interface Message {
   match_id: string
   sender_id: string
   content: string
+  reply_to_id?: string
+  likes?: string[]
   created_at: string
   is_read?: boolean
 }

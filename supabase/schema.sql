@@ -97,6 +97,8 @@ CREATE TABLE IF NOT EXISTS public.messages (
   match_id UUID REFERENCES public.matches(id) ON DELETE CASCADE NOT NULL,
   sender_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   content TEXT NOT NULL,
+  reply_to_id UUID REFERENCES public.messages(id) ON DELETE CASCADE,
+  likes UUID[] DEFAULT '{}',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
