@@ -16,6 +16,8 @@ const SPECIES_OPTIONS = [
   { value: 'other', label: '🐾 Otro' },
 ]
 
+const MAX_PHOTOS = 3
+
 interface PhotoItem {
   id: string
   src: string
@@ -32,14 +34,26 @@ export function EditPetButton({ pet }: { pet: any }) {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    if (files.length > 0) {
-      const newPhotos = files.map(file => ({
-        id: `new-${Math.random().toString(36).substr(2, 9)}`,
-        src: URL.createObjectURL(file),
-        file
-      }))
-      setPhotos(prev => [...prev, ...newPhotos])
+    if (files.length === 0) return
+
+    const remaining = MAX_PHOTOS - photos.length
+    if (remaining <= 0) {
+      toast.error(`Solo puedes subir hasta ${MAX_PHOTOS} imágenes.`)
+      return
     }
+
+    const selectedFiles = files.slice(0, remaining)
+    const newPhotos = selectedFiles.map(file => ({
+      id: `new-${Math.random().toString(36).substr(2, 9)}`,
+      src: URL.createObjectURL(file),
+      file
+    }))
+
+    if (files.length > remaining) {
+      toast.error(`Solo puedes subir hasta ${MAX_PHOTOS} imágenes.`)
+    }
+
+    setPhotos(prev => [...prev, ...newPhotos])
   }
 
   const removePhoto = (id: string) => {
@@ -134,7 +148,15 @@ export function EditPetButton({ pet }: { pet: any }) {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="w-full">
-                    <label className="text-[10px] text-white/40 uppercase tracking-widest font-black mb-2 block">Fotos de la Mascota</label>
+                    <div className="flex items-center justify-between gap-4 mb-2">
+                      <div>
+                        <p className="text-[10px] text-white/40 uppercase tracking-widest font-black">Fotos de la Mascota</p>
+                        <p className="text-[10px] text-white/50">Máximo {MAX_PHOTOS} imágenes</p>
+                      </div>
+                      <span className="text-[10px] text-white/50 uppercase tracking-widest">
+                        {photos.length}/{MAX_PHOTOS}
+                      </span>
+                    </div>
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       {photos.map((photo, index) => (
                         <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden group border border-white/10">
@@ -168,6 +190,7 @@ export function EditPetButton({ pet }: { pet: any }) {
                           name="photo"
                           accept="image/*"
                           multiple
+                          disabled={photos.length >= MAX_PHOTOS}
                           onChange={handleImageChange}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                         />

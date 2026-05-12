@@ -46,13 +46,15 @@ export async function addPet(formData: FormData) {
   const temperament = temperamentRaw ? temperamentRaw.split(',').map(t => t.trim()).filter(Boolean) : []
   const geneticInfo = formData.get('genetic_info') as string
   const behaviorPrediction = formData.get('behavior_prediction') as string
+  const maxPhotos = 3
   const photoOrder = JSON.parse(formData.get('photo_order') as string || '[]') as string[]
   const uploadedFiles = formData.getAll('photo') as File[]
   
   let photosArray: string[] = []
+  const orderedPhotoOrder = photoOrder.slice(0, maxPhotos)
 
-  if (photoOrder.length > 0) {
-    for (const item of photoOrder) {
+  if (orderedPhotoOrder.length > 0) {
+    for (const item of orderedPhotoOrder) {
       if (item.startsWith('file:')) {
         const fileNameRaw = item.replace('file:', '')
         const photo = uploadedFiles.find(f => f.name === fileNameRaw)
@@ -74,7 +76,7 @@ export async function addPet(formData: FormData) {
     }
   } else {
     // Fallback for simple uploads
-    for (const photo of uploadedFiles) {
+    for (const photo of uploadedFiles.slice(0, maxPhotos)) {
       if (photo && photo.size > 0) {
         const fileExt = photo.name.split('.').pop()
         const fileName = `${user.id}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`
