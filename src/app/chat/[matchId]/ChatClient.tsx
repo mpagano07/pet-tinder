@@ -40,6 +40,7 @@ export function ChatClient({
   const [replyTo, setReplyTo] = useState<Message | null>(null)
   const [isTyping, setIsTyping] = useState(false)
   const [otherIsTyping, setOtherIsTyping] = useState(false)
+  const [showEmojis, setShowEmojis] = useState(false)
   const supabase = createClient()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -104,6 +105,17 @@ export function ChatClient({
         if (newMsg.sender_id !== userId) {
           await supabase.from('messages').update({ is_read: true }).eq('id', newMsg.id)
         }
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages',
+        filter: `match_id=eq.${matchId}`,
+      }, (payload) => {
+        const updatedMsg = payload.new as Message
+        setMessages((prev) => prev.map((msg) => 
+          msg.id === updatedMsg.id ? { ...msg, likes: updatedMsg.likes, is_read: updatedMsg.is_read } : msg
+        ))
       })
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState() as Record<string, Array<{ isTyping?: boolean }>>
@@ -179,6 +191,20 @@ export function ChatClient({
           : msg
       )
     )
+  }
+
+  const handleTyping = () => {
+    if (!isTyping) {
+      setIsTyping(true)
+      channelRef.current?.track({ isTyping: true })
+    }
+    
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false)
+      channelRef.current?.track({ isTyping: false })
+    }, 2000)
   }
 
   const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
@@ -288,10 +314,10 @@ export function ChatClient({
                     aria-label={isLiked ? 'Quitar like' : 'Me gusta'}
                     className={cn(
                       'flex items-center gap-1 rounded-full px-2 py-1 transition-colors',
-                      isLiked ? 'bg-primary/20 text-primary' : 'hover:bg-white/10'
+                      (msg.likes && msg.likes.length > 0) ? 'bg-primary/20 text-primary' : 'hover:bg-white/10'
                     )}
                   >
-                    <Heart className={cn('w-4 h-4', isLiked && 'fill-current')} />
+                    <Heart className={cn('w-4 h-4', (msg.likes && msg.likes.length > 0) && 'fill-current')} />
                     {msg.likes && msg.likes.length > 0 && (
                       <span className="text-[11px]">{msg.likes.length}</span>
                     )}
@@ -312,6 +338,7 @@ export function ChatClient({
             </div>
           )
         })}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-xl border-t border-white/10 z-20">
@@ -334,33 +361,50 @@ export function ChatClient({
             </div>
           )}
 
-          <div className="mb-3 flex flex-wrap items-center gap-2 text-xl text-white/80">
-            {['😊', '😂', '😮', '😢', '❤️', '👍', '👎', '🔥'].map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                onClick={() => addEmoji(emoji)}
-                className="rounded-2xl bg-white/5 px-3 py-2 transition hover:bg-white/10"
-                title={`Agregar ${emoji}`}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
+          {/* Emojis are now inside the input */}
 
           <form onSubmit={sendMessage} className="flex gap-3">
-            <input
-              ref={inputRef}
-              type="text"
-              value={newMessage}
-              onChange={(e) => {
-                setNewMessage(e.target.value)
-                handleTyping()
-              }}
-              placeholder={placeholder}
-              autoFocus
-              className="flex-1 bg-white/5 border border-white/10 rounded-full px-6 py-3.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white placeholder:text-white/30"
-            />
+            <div className="relative flex-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={newMessage}
+                onChange={(e) => {
+                  setNewMessage(e.target.value)
+                  handleTyping()
+                }}
+                placeholder={placeholder}
+                autoFocus
+                className="w-full bg-white/5 border border-white/10 rounded-full pl-6 pr-12 py-3.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-white placeholder:text-white/30"
+              />
+              <button
+                type="button"
+                onClick={() => setShowEmojis(!showEmojis)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors p-2"
+                title="Emojis"
+              >
+                <Smile className="w-5 h-5" />
+              </button>
+
+              {showEmojis && (
+                <div className="absolute bottom-full right-0 mb-3 p-2 bg-background/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl flex gap-1 z-50">
+                  {['😊', '😂', '😮', '😢', '❤️', '👍', '👎', '🔥'].map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        addEmoji(emoji)
+                        setShowEmojis(false)
+                        inputRef.current?.focus()
+                      }}
+                      className="rounded-xl hover:bg-white/10 p-2 text-xl transition-colors"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               type="submit"
               disabled={!newMessage.trim()}

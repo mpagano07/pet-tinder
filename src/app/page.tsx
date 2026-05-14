@@ -20,11 +20,11 @@ export default function Home() {
           <PawPrint className="text-primary w-8 h-8" />
           <span className="text-gradient">PetMatch</span>
         </div>
-        <div className="flex gap-4">
-          <Link href="/auth/login" className="px-6 py-2 rounded-full font-medium transition-colors hover:bg-white/5">
+        <div className="flex gap-2 md:gap-4 items-center">
+          <Link href="/auth/login" className="px-4 md:px-6 py-2 text-sm md:text-base rounded-full font-medium transition-colors hover:bg-white/5 whitespace-nowrap">
             {dict.common.login}
           </Link>
-          <Link href="/auth/signup" className="px-6 py-2 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 shadow-[0_0_20px_rgba(230,57,70,0.4)] transition-all">
+          <Link href="/auth/signup" className="px-4 md:px-6 py-2 text-sm md:text-base rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 shadow-[0_0_20px_rgba(230,57,70,0.4)] transition-all whitespace-nowrap">
             {dict.common.signup}
           </Link>
         </div>

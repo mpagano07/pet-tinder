@@ -133,7 +133,7 @@ export default async function CommunityPage() {
              <CreatePostModal />
           </div>
 
-          <PostList initialPosts={postsData || []} />
+          <PostList initialPosts={postsData || []} isAdmin={isAdmin} />
         </section>
 
       </main>

@@ -1,6 +1,9 @@
 'use client'
 
-import { Sparkles } from 'lucide-react'
+import { useState } from 'react'
+import { Sparkles, Trash2 } from 'lucide-react'
+import { createClient } from '@/utils/supabase/client'
+import { toast } from 'sonner'
 
 interface Post {
   id: string
@@ -14,12 +17,36 @@ interface Post {
   }
 }
 
-export function PostList({ initialPosts }: { initialPosts: Post[] }) {
+export function PostList({ initialPosts, isAdmin = false }: { initialPosts: Post[], isAdmin?: boolean }) {
+  const [posts, setPosts] = useState(initialPosts)
+  const supabase = createClient()
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Seguro que deseas eliminar esta publicación?')) return
+
+    const { error } = await supabase.from('community_posts').delete().eq('id', id)
+    if (error) {
+      toast.error('Error al eliminar publicación')
+    } else {
+      toast.success('Publicación eliminada')
+      setPosts(posts.filter(p => p.id !== id))
+    }
+  }
+
   return (
     <div className="space-y-3">
-      {initialPosts.length > 0 ? (
-        initialPosts.map((post) => (
-          <div key={post.id} className="glass-dark p-5 rounded-[2rem] border border-white/5 transition-all">
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <div key={post.id} className="glass-dark p-5 rounded-[2rem] border border-white/5 transition-all relative">
+            {isAdmin && (
+              <button 
+                onClick={() => handleDelete(post.id)}
+                className="absolute top-4 right-4 p-2 text-white/30 hover:text-red-400 hover:bg-red-400/10 rounded-full transition-colors"
+                title="Eliminar publicación"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden">
                 {post.author.avatar_url ? (
