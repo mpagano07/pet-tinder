@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { PawPrint, Flag, X, Heart, MapPin, Sparkles } from 'lucide-react'
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { ReportModal } from '@/components/ui/ReportModal'
 import type { Pet } from '@/types'
 import { calculateCompatibility, getCompatibilityLabel } from '@/lib/matching'
@@ -98,15 +99,22 @@ export function SwipeCard({ pet, swiperPet, active, removeCard }: SwipeCardProps
 
           {/* Photo */}
           {pet.photos && pet.photos.length > 0 ? (
-            <motion.img
+            <motion.div
               key={photoIndex}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              src={pet.photos[photoIndex]}
-              alt={pet.name}
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              draggable={false}
-            />
+              className="absolute inset-0 w-full h-full"
+            >
+              <Image
+                src={pet.photos[photoIndex]}
+                alt={pet.name}
+                fill
+                priority={active}
+                className="object-cover pointer-events-none"
+                draggable={false}
+                sizes="(max-width: 768px) 100vw, 400px"
+              />
+            </motion.div>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
               <PawPrint className="w-24 h-24 text-white/10" />

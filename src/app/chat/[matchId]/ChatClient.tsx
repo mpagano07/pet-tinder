@@ -58,8 +58,11 @@ export function ChatClient({
     messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end', inline: 'nearest' })
   }
 
-  useLayoutEffect(() => {
-    scrollToBottom()
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+    return () => clearTimeout(timer)
   }, [messages, otherIsTyping])
 
   useEffect(() => {
