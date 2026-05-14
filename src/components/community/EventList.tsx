@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { MapPin, Loader2 } from 'lucide-react'
 import { joinEvent, leaveEvent } from '@/app/community/actions'
+import Image from 'next/image'
 import { toast } from 'sonner'
 
 interface Event {
@@ -53,10 +54,12 @@ export function EventList({ initialEvents }: { initialEvents: Event[] }) {
           <div key={event.id} className="glass rounded-3xl p-5 border border-white/5 hover:border-white/10 transition-all group">
             <div className="flex gap-4">
               <div className="w-20 h-20 rounded-2xl bg-zinc-800 overflow-hidden relative border border-white/5 shrink-0">
-                <img 
+                <Image 
                   src={event.image_url || "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=200"} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                  className="object-cover group-hover:scale-110 transition-transform duration-500" 
                   alt={event.title} 
+                  fill
+                  sizes="80px"
                 />
               </div>
               <div className="flex-1">

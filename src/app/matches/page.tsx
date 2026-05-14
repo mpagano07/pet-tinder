@@ -4,6 +4,7 @@ import { Navigation } from '@/components/Navigation'
 import { PawPrint, MessageCircle } from 'lucide-react'
 import { getDictionary } from '@/i18n/getDictionary'
 import Link from 'next/link'
+import Image from 'next/image'
 import { DeleteMatchButton } from '@/components/matches/DeleteMatchButton'
 
 export default async function MatchesPage() {
@@ -75,9 +76,15 @@ export default async function MatchesPage() {
                   <Link href={`/chat/${match.id}`} className="block">
                     <div className="glass rounded-2xl p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer border border-white/5">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-full bg-white/10 overflow-hidden border-2 border-white/10 flex-shrink-0">
+                        <div className="w-14 h-14 rounded-full bg-white/10 overflow-hidden border-2 border-white/10 flex-shrink-0 relative">
                           {theirPet.photos?.[0] ? (
-                            <img src={theirPet.photos[0]} alt={theirPet.name} className="w-full h-full object-cover" />
+                            <Image 
+                              src={theirPet.photos[0]} 
+                              alt={theirPet.name} 
+                              fill
+                              sizes="56px"
+                              className="object-cover" 
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <PawPrint className="w-6 h-6 text-white/20" />

@@ -8,6 +8,7 @@ import { useTranslation } from '@/i18n/LanguageProvider'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import type { Pet } from '@/types'
 
 export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swiperPet: Pet }) {
@@ -116,10 +117,12 @@ export function FeedClient({ initialPets, swiperPet }: { initialPets: Pet[], swi
               className="w-full max-w-sm text-center"
             >
               <div className="relative mb-8 flex justify-center">
-                <div className="w-32 h-32 rounded-full border-4 border-primary p-1 animate-pulse">
-                  <img
+                <div className="w-32 h-32 rounded-full border-4 border-primary p-1 animate-pulse relative overflow-hidden">
+                  <Image
                     src={matchPopup.pet.photos?.[0] || ''}
-                    className="w-full h-full object-cover rounded-full"
+                    fill
+                    sizes="128px"
+                    className="object-cover rounded-full p-1"
                     alt="Matched pet"
                   />
                 </div>

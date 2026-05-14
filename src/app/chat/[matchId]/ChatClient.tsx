@@ -3,6 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, type FormEvent } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { PawPrint, Send, X, CornerUpLeft, Heart, Smile } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -275,9 +276,15 @@ export function ChatClient({
 
           return (
             <div key={msg.id} className={cn('flex w-full gap-3', isMe ? 'flex-row-reverse' : 'flex-row')}>
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex-shrink-0 mt-1 border border-white/5">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 flex-shrink-0 mt-1 border border-white/5 relative">
                 {avatar ? (
-                  <img src={avatar} className="w-full h-full object-cover" alt="avatar" />
+                  <Image 
+                    src={avatar} 
+                    alt="avatar" 
+                    fill
+                    sizes="32px"
+                    className="object-cover" 
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-white/5">
                     <PawPrint className="w-4 h-4 text-white/20" />

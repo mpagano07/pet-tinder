@@ -6,6 +6,7 @@ import { logout } from '../auth/actions'
 import { PawPrint, User, Plus, Edit2, LogOut, ShieldAlert, Image as ImageIcon } from 'lucide-react'
 import { getDictionary } from '@/i18n/getDictionary'
 import Link from 'next/link'
+import Image from 'next/image'
 import { LocationButton } from '@/components/ui/LocationButton'
 
 import { AddPetButton } from '@/components/profiles/AddPetButton'
@@ -128,7 +129,13 @@ export default async function ProfilesPage() {
 
                 <div className="w-20 h-20 rounded-full bg-white/10 mb-3 flex items-center justify-center relative z-10 border border-white/20 overflow-hidden">
                   {pet.photos && pet.photos.length > 0 ? (
-                    <img src={pet.photos[0]} alt={pet.name} className="w-full h-full object-cover" />
+                    <Image 
+                      src={pet.photos[0]} 
+                      alt={pet.name} 
+                      fill
+                      sizes="80px"
+                      className="object-cover" 
+                    />
                   ) : (
                     <PawPrint className="w-8 h-8 text-white/40" />
                   )}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { Edit2, X, Image as ImageIcon, PawPrint, Loader2, Sparkles, Brain, FlaskConical, Star } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { updatePet } from '@/app/profiles/actions'
 import { useTranslation } from '@/i18n/LanguageProvider'
@@ -160,7 +161,13 @@ export function EditPetButton({ pet }: { pet: any }) {
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       {photos.map((photo, index) => (
                         <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden group border border-white/10">
-                          <img src={photo.src} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                          <Image 
+                            src={photo.src} 
+                            alt={`Preview ${index}`} 
+                            fill
+                            sizes="150px"
+                            className="object-cover" 
+                          />
                           <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               type="button"

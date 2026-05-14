@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { ChatClient } from './ChatClient'
 import { getDictionary } from '@/i18n/getDictionary'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, PawPrint } from 'lucide-react'
 
 export default async function ChatPage({ params }: { params: { matchId: string } }) {
@@ -51,9 +52,15 @@ export default async function ChatPage({ params }: { params: { matchId: string }
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-white/10">
+          <div className="w-10 h-10 rounded-full bg-white/10 overflow-hidden border border-white/10 relative">
             {otherPet.photos?.[0] ? (
-              <img src={otherPet.photos[0]} alt={otherPet.name} className="w-full h-full object-cover" />
+              <Image 
+                src={otherPet.photos[0]} 
+                alt={otherPet.name} 
+                fill
+                sizes="40px"
+                className="object-cover" 
+              />
             ) : (
               <PawPrint className="w-5 h-5 text-white/40" />
             )}

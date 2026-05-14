@@ -12,6 +12,7 @@ import { ReviewForm } from '@/components/services/ReviewForm'
 import { ReviewList } from '@/components/services/ReviewList'
 import { ClientPortal } from '@/components/ui/ClientPortal'
 import { deleteService, verifyService } from './actions'
+import Image from 'next/image'
 
 interface ServicePlace {
   id: string | number
@@ -185,10 +186,12 @@ export default function ServicesPage() {
                   {/* SERVICE THUMBNAIL */}
                   <div className="h-48 w-full relative bg-zinc-800/50 flex items-center justify-center overflow-hidden">
                     {service.photos && service.photos.length > 0 ? (
-                      <img 
+                      <Image 
                         src={service.photos[0]} 
                         alt={service.name} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        fill
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110" 
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2 opacity-20">

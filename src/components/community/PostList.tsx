@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Sparkles, Trash2 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
+import Image from 'next/image'
 import { toast } from 'sonner'
 
 interface Post {
@@ -48,9 +49,15 @@ export function PostList({ initialPosts, isAdmin = false }: { initialPosts: Post
               </button>
             )}
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative">
                 {post.author.avatar_url ? (
-                  <img src={post.author.avatar_url} className="w-full h-full object-cover" alt={post.author.username} />
+                  <Image 
+                    src={post.author.avatar_url} 
+                    className="object-cover" 
+                    alt={post.author.username} 
+                    fill
+                    sizes="40px"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white/20">
                     {post.author.username[0].toUpperCase()}

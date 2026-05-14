@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { Plus, Image as ImageIcon, PawPrint, Loader2, Sparkles, Brain, FlaskConical, X, Star } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'sonner'
 import { addPet } from '@/app/profiles/actions'
 import { useTranslation } from '@/i18n/LanguageProvider'
@@ -120,7 +121,13 @@ export function PetForm({ onSuccess }: { onSuccess?: () => void }) {
           <div className="grid grid-cols-2 gap-4 mb-4">
             {photos.map((photo, index) => (
               <div key={photo.id} className="relative aspect-square rounded-2xl overflow-hidden group border border-white/10">
-                <img src={photo.src} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                <Image 
+                  src={photo.src} 
+                  alt={`Preview ${index}`} 
+                  fill
+                  sizes="150px"
+                  className="object-cover" 
+                />
                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createService, updateService } from '@/app/services/actions'
 import { Camera, Loader2, X, MapPin, Phone, Type, Info, ExternalLink, Star } from 'lucide-react'
 import { useTranslation } from '@/i18n/LanguageProvider'
+import Image from 'next/image'
 
 interface ServiceFormProps {
   service?: any
@@ -161,7 +162,13 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
         <div className="grid grid-cols-3 gap-2">
           {existingPhotos.map((url, i) => (
             <div key={i} className="relative aspect-square rounded-xl overflow-hidden group">
-              <img src={url} alt="Service" className="w-full h-full object-cover" />
+              <Image 
+                src={url} 
+                alt="Service" 
+                fill
+                sizes="150px"
+                className="object-cover" 
+              />
               <button
                 type="button"
                 onClick={() => removeExistingPhoto(i)}
@@ -173,7 +180,13 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
           ))}
           {previews.map((url, i) => (
             <div key={i} className="relative aspect-square rounded-xl overflow-hidden group">
-              <img src={url} alt="Preview" className="w-full h-full object-cover" />
+              <Image 
+                src={url} 
+                alt="Preview" 
+                fill
+                sizes="150px"
+                className="object-cover" 
+              />
               <button
                 type="button"
                 onClick={() => removeNewPhoto(i)}
