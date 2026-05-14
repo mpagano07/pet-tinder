@@ -97,26 +97,16 @@ export function ChatClient({
     channelRef.current = channel
 
     channel
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'messages',
-        filter: `match_id=eq.${matchId}`,
-      }, async (payload) => {
-        const newMsg = payload.new as Message
+      .on('broadcast', { event: 'new_message' }, async (payload) => {
+        const newMsg = payload.payload as Message
         addMessage(newMsg)
 
         if (newMsg.sender_id !== userId) {
           await supabase.from('messages').update({ is_read: true }).eq('id', newMsg.id)
         }
       })
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'messages',
-        filter: `match_id=eq.${matchId}`,
-      }, (payload) => {
-        const updatedMsg = payload.new as Message
+      .on('broadcast', { event: 'update_message' }, (payload) => {
+        const updatedMsg = payload.payload as Message
         setMessages((prev) => prev.map((msg) => 
           msg.id === updatedMsg.id ? { ...msg, likes: updatedMsg.likes, is_read: updatedMsg.is_read } : msg
         ))
@@ -176,6 +166,12 @@ export function ChatClient({
           : m
       ))
       toast.error('Error al actualizar like')
+    } else {
+      channelRef.current?.send({
+        type: 'broadcast',
+        event: 'update_message',
+        payload: { ...message, likes: newLikes }
+      })
     }
   }
 
@@ -263,6 +259,16 @@ export function ChatClient({
           : msg
       )
     )
+
+    channelRef.current?.send({
+      type: 'broadcast',
+      event: 'new_message',
+      payload: {
+        ...tempMsg,
+        id: data.id,
+        created_at: data.created_at
+      }
+    })
   }
 
   return (
