@@ -6,6 +6,7 @@ import { getDictionary } from '@/i18n/getDictionary'
 import Link from 'next/link'
 import Image from 'next/image'
 import { DeleteMatchButton } from '@/components/matches/DeleteMatchButton'
+import { MatchesRealtimeRefresh } from '@/components/matches/MatchesRealtimeRefresh'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -57,6 +58,7 @@ export default async function MatchesPage() {
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-orange-500/20 blur-[120px] pointer-events-none" />
+      <MatchesRealtimeRefresh />
 
       <header className="pt-12 pb-4 px-6 flex justify-between items-center relative z-10">
         <div className="flex items-center gap-2">
