@@ -6,6 +6,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, PawPrint } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function ChatPage({ params }: { params: { matchId: string } }) {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
