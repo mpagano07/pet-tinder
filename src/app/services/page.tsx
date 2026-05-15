@@ -57,7 +57,6 @@ export default function ServicesPage() {
       const { data: dbSvc } = await supabase
         .from('services')
         .select('*')
-        .eq('is_active', true)
       
       const formattedDbSvc = (dbSvc || []).map(s => ({ ...s, promoted: true }))
       setDbServices(formattedDbSvc)

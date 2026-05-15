@@ -23,7 +23,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-6">
           <Link href="/" className="flex items-center gap-2">
             <PawPrint className="text-primary w-8 h-8" />
-            <span className="text-gradient font-bold text-2xl tracking-tight">PetMatch</span>
+            <span className="text-gradient font-bold text-2xl tracking-tight">Pawndr</span>
           </Link>
         </div>
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
               className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-white placeholder:text-white/40"
             />
           </div>
-          
+
           <div className="relative">
             <Lock className="absolute left-3 top-3.5 w-5 h-5 text-white/40" />
             <input
@@ -52,8 +52,8 @@ export default function LoginPage() {
               placeholder={dict.common.password}
               className="w-full pl-10 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all text-white placeholder:text-white/40"
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               className="absolute right-3 top-3.5 text-white/40 hover:text-white/80 transition-colors"

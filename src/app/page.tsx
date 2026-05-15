@@ -18,7 +18,7 @@ export default function Home() {
       <nav className="w-full absolute top-0 z-50 p-6 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
         <div className="flex items-center gap-2 font-bold text-2xl tracking-tight">
           <PawPrint className="text-primary w-8 h-8" />
-          <span className="text-gradient">PetMatch</span>
+          <span className="text-gradient">Pawndr</span>
         </div>
         <div className="flex gap-2 md:gap-4 items-center">
           <Link href="/auth/login" className="px-4 md:px-6 py-2 text-sm md:text-base rounded-full font-medium transition-colors hover:bg-white/5 whitespace-nowrap">
@@ -58,7 +58,7 @@ export default function Home() {
         </motion.div>
 
         {/* Feature Highlights */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}

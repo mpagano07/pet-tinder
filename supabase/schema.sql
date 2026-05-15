@@ -1,5 +1,5 @@
 -- =========================================================
--- PetMatch — Schema SQL completo v2
+-- Pawndr — Schema SQL completo v2
 -- Ejecutar en Supabase SQL Editor
 -- =========================================================
 

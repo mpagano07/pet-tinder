@@ -12,7 +12,7 @@ import { Toaster } from "sonner";
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pet Tinder | Find your pet's perfect match",
+  title: "Pawndr | Find your pet's perfect match",
   description: "A premium dating and matching app for pets. Find playdates, mates, or new friends for your furry companions.",
 };
 

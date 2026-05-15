@@ -66,7 +66,8 @@ export async function createService(formData: FormData) {
       google_maps_url: googleMapsUrl,
       phone,
       photos: photosArray,
-      rating_avg: 5.0
+      rating_avg: 5.0,
+      is_active: true
     })
 
   if (error) {
